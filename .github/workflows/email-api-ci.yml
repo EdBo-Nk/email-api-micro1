@@ -1,0 +1,49 @@
+name: Build and Push email-api-micro1 to ECR
+
+on:
+  push:
+    paths:
+      - 'email-api-micro1/**'
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        run: |
+          cd email-api-micro1
+          COMMIT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+          ECR_REGISTRY=640107381183.dkr.ecr.us-east-2.amazonaws.com
+          ECR_REPOSITORY=sqs-to-s3-micro2
+          
+          # Build image
+          docker build -t $ECR_REPOSITORY:$COMMIT_SHA .
+
+          # Tag with commit SHA
+          docker tag $ECR_REPOSITORY:$COMMIT_SHA $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_SHA
+          
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_SHA
+        
+          # Output the image URI for use in subsequent steps or jobs
+          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_SHA" >> $GITHUB_ENV
