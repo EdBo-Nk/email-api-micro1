@@ -32,7 +32,7 @@ jobs:
         run: |
           COMMIT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           ECR_REGISTRY=640107381183.dkr.ecr.us-east-2.amazonaws.com
-          ECR_REPOSITORY=sqs-to-s3-micro2
+          ECR_REPOSITORY=email-api-micro1
           
           # Build image
           docker build -t $ECR_REPOSITORY:$COMMIT_SHA .
@@ -44,3 +44,32 @@ jobs:
         
           # Output the image URI for use in subsequent steps or jobs
           echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_SHA" >> $GITHUB_ENV
+
+      - name: Clone terraform repository
+        if: success()
+        run: git clone https://github.com/EdBo-Nk/terraform terraform-repo
+
+      - name: Update Terraform with new image
+        if: success()
+        working-directory: terraform-repo
+        run: |
+          # Replace the image in main.tf with the new image URI
+          sed -i "s|640107381183.dkr.ecr.us-east-2.amazonaws.com/email-api-micro1:latest|${{ env.IMAGE_URI }}|g" main.tf
+          
+          # Verify the change
+          grep -A 5 "email-api-container" main.tf
+
+      - name: Configure Git
+        if: success()
+        working-directory: terraform-repo
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "GitHub Actions"
+
+      - name: Commit and push changes
+        if: success()
+        working-directory: terraform-repo
+        run: |
+          git add main.tf
+          git commit -m "Update email-api-micro1 image to ${{ env.IMAGE_URI }}"
+          git push https://${{ secrets.GH_TOKEN }}@github.com/EdBo-Nk/terraform.git
