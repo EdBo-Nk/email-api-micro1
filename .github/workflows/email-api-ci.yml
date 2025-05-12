@@ -47,7 +47,7 @@ jobs:
 
       - name: Clone terraform repository
         if: success()
-        run: git clone https://github.com/EdBo-Nk/terraform terraform-repo
+        run: git clone https://${{ secrets.GH_TOKEN }}@github.com/EdBo-Nk/terraform.git terraform-repo
 
       - name: Update Terraform with new image
         if: success()
