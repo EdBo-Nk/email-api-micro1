@@ -2,8 +2,6 @@ name: Build and Push email-api-micro1 to ECR
 
 on:
   push:
-    paths:
-      - 'email-api-micro1/**'
     branches:
       - main
 
