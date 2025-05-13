@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.py'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.github/workflows/email-api-ci.yml'
 
 jobs:
   build-and-push:
