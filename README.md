@@ -9,7 +9,7 @@ REST API that accepts payload and forwards it to SQS after validating input.
 3. Validates `email_timestream`
 4. Publishes to SQS
 
-TECH STACK:
+
 - Flask 
 - AWS Parameter Store, SQS, ECR, ECS
 - Docker container
