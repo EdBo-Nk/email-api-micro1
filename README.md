@@ -3,10 +3,15 @@
 ## Repository Secrets
 
 For the CI/CD pipeline to work properly, add these secrets to the repository:
-- `AWS_ACCESS_KEY_ID`: Your AWS access key with appropriate permissions (SQS, S3)
+ - `AWS_ACCESS_KEY_ID`: Your AWS access key with permissions for:
+   - SQS
+   - SSM Parameter Store
+   - ECR
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key
 - `AWS_REGION`: us-east-2 (Ohio region)
 - `GH_TOKEN`: GitHub personal access token (classic) with repo access to the Terraform repository
+
+For simplicity during testing, you might start with Admin access and then dial down permissions based on the resources defined in the Terraform files.
 
 ## Function
 REST API that accepts payload and forwards it to SQS after validating input.
